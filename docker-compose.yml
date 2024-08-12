@@ -1,0 +1,143 @@
+services:
+  jellyfin:
+    image: jellyfin/jellyfin:latest
+    container_name: jellyfin
+    ports:
+      - 8096:8096
+      - 8920:8920 # 可选-Https webUI（您需要设置自己的证书）
+      - 7359:7359/udp # 可选 - 允许客户端在本地网络上发现 Jellyfin
+      - 1900:1900/udp # 可选-DNLA 和客户端使用的服务发现
+    environment:
+      - PUID=1000
+      - PGID=1000
+    volumes:
+      - ./jellyfin/config:/config
+      - ./jellyfin/cache:/cache
+      - /Downloads:/media # 请修改为你的媒体目录
+    restart: 'unless-stopped'
+
+  qBittorrent:
+    image: johngong/qbittorrent:latest
+    container_name: qBittorrent
+    ports:
+      - 8888:8888
+      - 6881:6881 #	BT下载监听端口
+      - 6881:6881/udp #	BT下载DHT监听端口
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - QB_WEBUI_PORT=8888
+      - QB_EE_BIN=true
+    volumes:
+      - ./qbittorrent:/config
+      - /Downloads/downloads:/downloads # 请修改为你的媒体目录
+    restart: unless-stopped
+        
+  flaresolverr:
+    image: flaresolverr/flaresolverr:latest
+    container_name: flaresolverr
+    environment:
+      - LOG_LEVEL=warning
+      - TZ=Asia/Shanghai
+    ports:
+      - 8191:8191
+    volumes:
+      - ./flaresolverr/config:/app/config
+    restart: unless-stopped
+
+  prowlarr:
+    image: linuxserver/prowlarr:latest
+    container_name: prowlarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+    volumes:
+      - ./prowlarr/data:/config
+    ports:
+      - 9696:9696
+    restart: unless-stopped
+
+  sonarr:
+    image: linuxserver/sonarr:latest
+    container_name: sonarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Asia/Shanghai
+    volumes:
+      - ./sonarr/config:/config
+      - /Downloads:/data # 请修改为你的媒体目录
+    ports:
+      - 8989:8989
+    restart: unless-stopped
+
+  radarr:
+    image: linuxserver/radarr:latest
+    container_name: radarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Asia/Shanghai
+    volumes:
+      - ./radarr/config:/config
+      - /Downloads:/data # 请修改为你的媒体目录
+    ports:
+      - 7878:7878
+    restart: unless-stopped
+
+  jellyseerr:
+    image: fallenbagel/jellyseerr:latest
+    container_name: jellyseerr
+    environment:
+      - LOG_LEVEL=warning
+      - TZ=Asia/Shanghai
+    ports:
+      - 5055:5055
+    volumes:
+      - ./jellyseerr/config:/app/config
+    restart: unless-stopped
+
+  jproxy:
+    image: luckypuppy514/jproxy:latest
+    container_name: jproxy
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Asia/Shanghai
+      - JAVA_OPTS=-Xms512m -Xmx512m
+    volumes:
+      - ./jproxy/database:/app/database
+    ports:
+      - 8117:8117
+    restart: unless-stopped
+
+  chinesesubfinder:
+    image: allanpk716/chinesesubfinder:latest
+    container_name: chinesesubfinder
+    volumes:
+      - ./chinesesubfinder/config:/config
+      - /Downloads:/media # 请修改为你的媒体目录
+      - ./chinesesubfinder/browser:/root/.cache/rod/browser
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - PERMS=false
+      - TZ=Asia/Shanghai
+    ports:
+      - 19035:19035
+      - 19037:19037
+    restart: unless-stopped
+
+  peerbanhelper:
+    image: ghostchu/peerbanhelper:latest
+    container_name: peerbanhelper
+    environment:
+      - PUID=0
+      - PGID=0
+      - TZ=UTC
+    volumes:
+      - ./peerbanhelper/data:/app/data
+    ports:
+      - 9898:9898
+    restart: unless-stopped

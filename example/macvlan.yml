@@ -1,0 +1,185 @@
+services:
+  jellyfin:
+    image: jellyfin/jellyfin:latest
+    container_name: jellyfin
+    ports:
+      - 8096:8096
+      - 8920:8920 # 可选-Https webUI（您需要设置自己的证书）
+      - 7359:7359/udp # 可选 - 允许客户端在本地网络上发现 Jellyfin
+      - 1900:1900/udp # 可选-DNLA 和客户端使用的服务发现
+    environment:
+      - PUID=1000
+      - PGID=1000
+    volumes:
+      - ./jellyfin/config:/config
+      - ./jellyfin/cache:/cache
+      - /Downloads:/media # 请修改为你的媒体目录
+    restart: 'unless-stopped'
+    networks:
+      macvlan_network:
+        ipv4_address: 192.168.1.10 # 将其更改为你想要的 IP 地址
+
+  qBittorrent:
+    image: johngong/qbittorrent:latest
+    container_name: qBittorrent
+    ports:
+      - 8888:8888 # webui 端口
+      - 6881:6881 #	BT下载监听端口
+      - 6881:6881/udp #	BT下载DHT监听端口
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - QB_WEBUI_PORT=8888
+      - QB_EE_BIN=true
+    volumes:
+      - ./qbittorrent:/config
+      - /Downloads/downloads:/downloads # 请修改为你的媒体目录
+    restart: unless-stopped
+    networks:
+      macvlan_network:
+        ipv4_address: 192.168.1.11 # 将其更改为你想要的 IP 地址
+        
+  flaresolverr:
+    image: flaresolverr/flaresolverr:latest
+    container_name: flaresolverr
+    environment:
+      - LOG_LEVEL=warning
+      - TZ=Asia/Shanghai
+    ports:
+      - 8191:8191 # webui 端口
+    volumes:
+      - ./flaresolverr/config:/app/config
+    restart: unless-stopped
+    networks:
+      macvlan_network:
+        ipv4_address: 192.168.1.12 # 将其更改为你想要的 IP 地址
+
+  prowlarr:
+    image: linuxserver/prowlarr:latest
+    container_name: prowlarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+    volumes:
+      - ./prowlarr/data:/config
+    ports:
+      - 9696:9696 # webui 端口
+    restart: unless-stopped
+    networks:
+      macvlan_network:
+        ipv4_address: 192.168.1.13 # 将其更改为你想要的 IP 地址
+
+  sonarr:
+    image: linuxserver/sonarr:latest
+    container_name: sonarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Asia/Shanghai
+    volumes:
+      - ./sonarr/config:/config
+      - /Downloads:/data # 请修改为你的媒体目录
+    ports:
+      - 8989:8989 # webui 端口
+    restart: unless-stopped
+    networks:
+      macvlan_network:
+        ipv4_address: 192.168.1.14 # 将其更改为你想要的 IP 地址
+
+  radarr:
+    image: linuxserver/radarr:latest
+    container_name: radarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Asia/Shanghai
+    volumes:
+      - ./radarr/config:/config
+      - /Downloads:/data # 请修改为你的媒体目录
+    ports:
+      - 7878:7878 # webui 端口
+    restart: unless-stopped
+    networks:
+      macvlan_network:
+        ipv4_address: 192.168.1.15 # 将其更改为你想要的 IP 地址
+
+  jellyseerr:
+    image: fallenbagel/jellyseerr:latest
+    container_name: jellyseerr
+    environment:
+      - LOG_LEVEL=warning
+      - TZ=Asia/Shanghai
+    ports:
+      - 5055:5055 # webui 端口
+    volumes:
+      - ./jellyseerr/config:/app/config
+    restart: unless-stopped
+    networks:
+      macvlan_network:
+        ipv4_address: 192.168.1.16 # 将其更改为你想要的 IP 地址
+
+  jproxy:
+    image: luckypuppy514/jproxy:latest
+    container_name: jproxy
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Asia/Shanghai
+      - JAVA_OPTS=-Xms512m -Xmx512m
+    volumes:
+      - ./jproxy/database:/app/database
+    ports:
+      - 8117:8117 # webui 端口
+    restart: unless-stopped
+    networks:
+      macvlan_network:
+        ipv4_address: 192.168.1.17 # 将其更改为你想要的 IP 地址
+
+  chinesesubfinder:
+    image: allanpk716/chinesesubfinder:latest
+    container_name: chinesesubfinder
+    volumes:
+      - ./chinesesubfinder/config:/config
+      - /Downloads:/media # 请修改为你的媒体目录
+      - ./chinesesubfinder/browser:/root/.cache/rod/browser
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - PERMS=false
+      - TZ=Asia/Shanghai
+    ports:
+      - 19035:19035  # webui 端口
+      - 19037:19037 # webui 的视频列表读取图片用，务必设置不要暴露到外网
+    restart: unless-stopped
+    networks:
+      macvlan_network:
+        ipv4_address: 192.168.1.18 # 将其更改为你想要的 IP 地址
+
+  peerbanhelper:
+    image: ghostchu/peerbanhelper:latest
+    container_name: peerbanhelper
+    environment:
+      - PUID=0
+      - PGID=0
+      - TZ=UTC
+    volumes:
+      - ./peerbanhelper/data:/app/data
+    ports:
+      - 9898:9898 # webui 端口
+    restart: unless-stopped
+    networks:
+      macvlan_network:
+        ipv4_address: 192.168.1.19 # 将其更改为你想要的 IP 地址
+
+networks:
+  macvlan_network:
+    enable_ipv6: true # 如果你的网络支持 IPv6，请将其设置为 true
+    driver: macvlan
+    driver_opts:
+      parent: eth0 # 将其更改为你的网络接口名称
+    ipam:
+      driver: default
+      config:
+        - subnet: 192.168.1.0/24 # 将其更改为你想要的 IP 地址段
+          gateway: 192.168.1.1 # 将其更改为你想要的网关地址
