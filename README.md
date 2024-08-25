@@ -1,12 +1,56 @@
 # auto-animation
 
-本项目初衷是打造自动化追番流程，国内的平台现在成了正版受害者，花钱看删减
+**自动化追番，告别正版受害者！**
 
-使用 docker compose 一键搭建所有容器
+本项目旨在打造自动化追番流程，让你摆脱国内平台删减的困扰，轻松享受原汁原味的动画！
 
-## 使用教程
+完整部署及使用教程请前往我的博客: [https://blog.kongwu.top/p/auto-animation](https://blog.kongwu.top/p/auto-animation)
 
-建议使用**4g及以上的内存**
+## ✨ 亮点
+
+* **一键部署**: 使用 Docker Compose，轻松搭建所有服务。
+* **告别删减**:  获取最完整的动画资源。
+* **自动化下载**:  解放双手，自动搜索、下载、整理新番。
+
+## 🚀 快速开始
+
+1. **系统要求**: 建议使用 4GB 及以上内存的设备。
+2. **克隆仓库**:  `git clone https://github.com/empty-233/auto-animation.git`
+3. **安装**:  
+    * `cd auto-animation`
+    * `chmod +x ./install.sh`
+    * `sudo ./install.sh`  (根据脚本提示操作)
+
+使用 [Bridge](https://docs.docker.com/network/drivers/bridge) 网络会遇到 qBittorrent 连接性问题，jellyfin DLNA 会有问题，并且 ipv6 开启比较麻烦
+
+使用 [Macvlan](https://docs.docker.com/network/drivers/macvlan) 可以解决网络问题，但无法与宿主通讯
+
+### 🐳 Docker Compose 部署
+
+~~基础操作就不重复了，不会就使用脚本一键安装吧~~
+
+#### Bridge 网络
+
+1. 修改 `docker-compose.yml` 中 `volumes` 的 `/Downloads` 为你的媒体库路径。
+2. 运行 `docker compose up -d`
+
+#### Macvlan 网络(推荐使用)
+
+1. 复制 `example/macvlan.yml` 到根目录替换 `docker-compose.yml`
+2. 修改 `docker-compose.yml` 中 `volumes` 的 `/Downloads` 为你的媒体库路径。
+    * 修改 `parent` 成你的 `网络接口`
+    * 修改 `subnet` 成你的 `网络地址段`
+    * 修改 `gateway` 成你的 `网络网关地址`
+    * 修改**每个**容器的 `ipv4_address` 成你想要的 `网络地址` (注意，**不能重复，不能已现有的ip地址重复**)
+3. 运行 `docker compose up -d`
+
+### 🔄 更新容器
+
+```bash
+docker compose down && docker compose pull && docker compose up -d
+```
+
+## 🧰  服务端口
 
 | 服务 | 地址 |
 |---|---|
@@ -21,76 +65,7 @@
 | chinesesubfinder | `ip:19035` |
 | peerbanhelper | `ip:9898` |
 
-使用 [Bridge](https://docs.docker.com/network/drivers/bridge) 网络会遇到 qBittorrent 连接性问题，jellyfin DLNA 会有问题，并且 ipv6 开启比较麻烦
-
-使用 [Macvlan](https://docs.docker.com/network/drivers/macvlan) 可以解决网络问题，但无法与宿主通讯
-
-### 安装脚本
-
-使用 git 拉取本仓库
-
-```bash
-git clone https://github.com/empty-233/auto-animation.git
-```
-
-cd 进入项目文件夹
-
-```bash
-cd ./auto-animation
-```
-
-赋予脚本执行权限
-
-```bash
-chmod +x ./install.sh
-```
-
-使用root权限执行(自动判断是否安装docker，没有则安装)
-
-```bash
-sudo ./install.sh
-```
-
-接着按照脚本说明操作
-
-### docker compose 部署
-
-~~基础操作就不重复了，不会就使用脚本一键安装吧~~
-
-#### Bridge 网络
-
-修改 `docker-compose.yml` 中的 `volumes` 挂载路径
-
-请将 `/Downloads` 修改成你的媒体路径，所有资源都会存放在这个文件夹中
-
-```bash
-docker compose up -d
-```
-
-#### Macvlan 网络
-
-复制 `example/macvlan.yml` 到根目录替换 `docker-compose.yml`
-
-修改 `docker-compose.yml` 中的 `volumes` 挂载路径
-
-请将 `/Downloads` 修改成你的媒体路径，所有资源都会存放在这个文件夹中
-
-* 修改 `parent` 成你的 `网络接口`
-* 修改 `subnet` 成你的 `网络地址段`
-* 修改 `gateway` 成你的 `网络网关地址`
-* 修改**每个**容器的 `ipv4_address` 成你想要的 `网络地址` (注意，**不能重复，不能已现有的ip地址重复**)
-
-```bash
-docker compose up -d
-```
-
-### 更新容器
-
-```bash
-docker compose down && docker compose pull && docker compose up -d
-```
-
-## 容器介绍与注意事项
+## 💡 容器介绍与注意事项
 
 ### Jellyfin
 
@@ -136,3 +111,7 @@ docker compose down && docker compose pull && docker compose up -d
 BitTorrent 网络已经出现[吸血鬼](https://github.com/anacrolix/torrent/discussions/891)，使用 `peerbanhelper` 自动封禁
 
 ~~强烈建议使用，或者使用[qBittorrent-ClientBlocker](https://github.com/Simple-Tracker/qBittorrent-ClientBlocker)，不然pcdn吸血鬼用户分分钟吃满上传~~
+
+## 🤝 贡献
+
+欢迎提交 issue 和 pull request，一起完善这个项目！
