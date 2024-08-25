@@ -5,7 +5,7 @@ if [[ $EUID -ne 0 ]]; then
     exit 1
 fi
 
-if !command -v docker &> /dev/null; then
+if ! command -v docker &> /dev/null; then
     if command -v curl &> /dev/null; then
          curl -fsSL https://get.docker.com -o get-docker.sh
     elif command -v wget &> /dev/null; then
