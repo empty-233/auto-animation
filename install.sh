@@ -19,9 +19,13 @@ if ! command -v docker &> /dev/null; then
     rm -f get-docker.sh
 fi
 
+media_path=""
+
 modifyMediaLocation(){
-    read -p "请输入存储的媒体路径(注意权限): " input_path
-    sed -i "s|/Downloads|$input_path|g" ./docker-compose.yml
+    read -p "请输入存储的媒体绝对路径(注意权限，结尾不带/): " media_path
+    mkdir -p $media_path/TV
+    mkdir -p $media_path/Movies
+    sed -i "s|/test|$media_path|g" ./docker-compose.yml
 }
 
 textReplacement(){
@@ -84,8 +88,11 @@ case $choice in
 esac
 
 docker compose up -d
-if [ $? -eq 0 ]; then
-  echo "安装完成。请阅读README中的端口或者自行查看 docker-compose.yml 文件"
-else
+if ! [ $? -eq 0 ]; then
   echo "安装失败，请查看docker compose日志"
+  exit 1
 fi
+
+chown -R 1000:1000 $media_path
+
+echo "安装完成。请阅读README中的端口或者自行查看 docker-compose.yml 文件"

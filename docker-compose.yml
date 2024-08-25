@@ -13,7 +13,7 @@ services:
     volumes:
       - ./jellyfin/config:/config
       - ./jellyfin/cache:/cache
-      - /Downloads:/media # 请修改为你的媒体目录
+      - /test:/media # 请修改为你的媒体目录
     restart: 'unless-stopped'
 
   qBittorrent:
@@ -30,7 +30,7 @@ services:
       - QB_EE_BIN=true
     volumes:
       - ./qbittorrent:/config
-      - /Downloads/downloads:/downloads # 请修改为你的媒体目录
+      - /test/downloads:/Downloads # 请修改为你的媒体目录
     restart: unless-stopped
         
   flaresolverr:
@@ -67,7 +67,7 @@ services:
       - TZ=Asia/Shanghai
     volumes:
       - ./sonarr/config:/config
-      - /Downloads:/data # 请修改为你的媒体目录
+      - /test:/data # 请修改为你的媒体目录
     ports:
       - 8989:8989
     restart: unless-stopped
@@ -81,7 +81,7 @@ services:
       - TZ=Asia/Shanghai
     volumes:
       - ./radarr/config:/config
-      - /Downloads:/data # 请修改为你的媒体目录
+      - /test:/data # 请修改为你的媒体目录
     ports:
       - 7878:7878
     restart: unless-stopped
@@ -117,7 +117,7 @@ services:
     container_name: chinesesubfinder
     volumes:
       - ./chinesesubfinder/config:/config
-      - /Downloads:/media # 请修改为你的媒体目录
+      - /test:/media # 请修改为你的媒体目录
       - ./chinesesubfinder/browser:/root/.cache/rod/browser
     environment:
       - PUID=1000
